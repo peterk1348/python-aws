@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: |
+  Sample Python Lambda Function
+
+Resources:
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: 'dev'
+
+  GetTopStoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetTopStoryFunction
+      Handler: functions.hn.get_top_story
+      CodeUri: ./source/
+      MemorySize: 128
+      Runtime: python3.7
+      Timeout: 60
+      Events:
+        http:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /hn/story/top
+            Method: get
+
+Outputs:
+  RootUrl:
+    Description: Root URL for the FileStore API
+    Value: !Join
+      - ''
+      - - https://
+        - !Ref ApiGateway
+        - '.execute-api.'
+        - !Ref 'AWS::Region'
+        - '.amazonaws.com/dev'
